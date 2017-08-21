@@ -2177,7 +2177,6 @@ int edge_main(int argc, char* argv[])
 
 
 #ifdef N2N_HAVE_DAEMON
-#include <spawn.h>
     
    if ( eee.daemon )
    {
