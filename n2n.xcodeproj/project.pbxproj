@@ -24,7 +24,6 @@
 		61A3CE4B1F46AF9A007B032D /* version.c in Sources */ = {isa = PBXBuildFile; fileRef = 61A3CE0D1F46AF9A007B032D /* version.c */; };
 		61A3CE551F46AF9A007B032D /* wire.c in Sources */ = {isa = PBXBuildFile; fileRef = 61A3CE1C1F46AF9A007B032D /* wire.c */; };
 		61A3CE581F46B423007B032D /* edge.c in Sources */ = {isa = PBXBuildFile; fileRef = 61A3CE561F46B423007B032D /* edge.c */; };
-		61A3CE591F46B423007B032D /* sn.c in Sources */ = {isa = PBXBuildFile; fileRef = 61A3CE571F46B423007B032D /* sn.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,7 +56,6 @@
 		61A3CE0D1F46AF9A007B032D /* version.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = version.c; sourceTree = "<group>"; };
 		61A3CE1C1F46AF9A007B032D /* wire.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wire.c; sourceTree = "<group>"; };
 		61A3CE561F46B423007B032D /* edge.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = edge.c; sourceTree = "<group>"; };
-		61A3CE571F46B423007B032D /* sn.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sn.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,7 +120,6 @@
 				61A3CDF01F46AF9A007B032D /* n2n.c */,
 				61A3CDF11F46AF9A007B032D /* n2n.h */,
 				61A3CE561F46B423007B032D /* edge.c */,
-				61A3CE571F46B423007B032D /* sn.c */,
 				61A3CDF31F46AF9A007B032D /* n2n_keyfile.c */,
 				61A3CDF41F46AF9A007B032D /* n2n_keyfile.h */,
 				61A3CDF51F46AF9A007B032D /* n2n_transforms.h */,
@@ -223,7 +220,6 @@
 				61A3CE441F46AF9A007B032D /* transform_null.c in Sources */,
 				61A3CE551F46AF9A007B032D /* wire.c in Sources */,
 				61A3CE381F46AF9A007B032D /* n2n_keyfile.c in Sources */,
-				61A3CE591F46B423007B032D /* sn.c in Sources */,
 				61A3CE431F46AF9A007B032D /* transform_aes.c in Sources */,
 				61A3CE491F46AF9A007B032D /* tuntap_osx.c in Sources */,
 			);
@@ -384,6 +380,7 @@
 				61A3CDD11F46AF41007B032D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

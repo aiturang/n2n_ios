@@ -1926,378 +1926,380 @@ static int run_loop(n2n_edge_t * eee );
 #define N2N_IF_MODE_SIZE        16 /* static | dhcp */
 
 /** Entry point to program from kernel. */
-//int main(int argc, char* argv[])
-//{
-//    int     opt;
-//    int     local_port = 0 /* any port */;
-//    int     mgmt_port = N2N_EDGE_MGMT_PORT; /* 5644 by default */
-//    char    tuntap_dev_name[N2N_IFNAMSIZ] = "edge0";
-//    char    ip_mode[N2N_IF_MODE_SIZE]="static";
-//    char    ip_addr[N2N_NETMASK_STR_SIZE] = "";
-//    char    netmask[N2N_NETMASK_STR_SIZE]="255.255.255.0";
-//    int     mtu = DEFAULT_MTU;
-//    int     got_s = 0;
-//
-//#ifndef WIN32
-//    uid_t   userid=0; /* root is the only guaranteed ID */
-//    gid_t   groupid=0; /* root is the only guaranteed ID */
-//#endif
-//
-//    char    device_mac[N2N_MACNAMSIZ]="";
-//    char *  encrypt_key=NULL;
-//
-//    int     i, effectiveargc=0;
-//    char ** effectiveargv=NULL;
-//    char  * linebuffer = NULL;
-//
-//    n2n_edge_t eee; /* single instance for this program */
-//
-//    if (-1 == edge_init(&eee) )
-//    {
-//        traceEvent( TRACE_ERROR, "Failed in edge_init" );
-//        exit(1);
-//    }
-//
-//    if( getenv( "N2N_KEY" ))
-//    {
-//        encrypt_key = strdup( getenv( "N2N_KEY" ));
-//    }
-//
-//#ifdef WIN32
-//    tuntap_dev_name[0] = '\0';
-//#endif
-//    memset(&(eee.supernode), 0, sizeof(eee.supernode));
-//    eee.supernode.family = AF_INET;
-//
-//    linebuffer = (char *)malloc(MAX_CMDLINE_BUFFER_LENGTH);
-//    if (!linebuffer)
-//    {
-//        traceEvent( TRACE_ERROR, "Unable to allocate memory");
-//        exit(1);
-//    }
-//    snprintf(linebuffer, MAX_CMDLINE_BUFFER_LENGTH, "%s",argv[0]);
-//
-//#ifdef WIN32
-//    for(i=0; i < (int)strlen(linebuffer); i++)
-//        if(linebuffer[i] == '\\') linebuffer[i] = '/';
-//#endif
-//
-//    for(i=1;i<argc;++i)
-//    {
-//        if(argv[i][0] == '@')
-//        {
-//            if (readConfFile(&argv[i][1], linebuffer)<0) exit(1); /* <<<<----- check */
-//        }
-//        else if ((strlen(linebuffer)+strlen(argv[i])+2) < MAX_CMDLINE_BUFFER_LENGTH)
-//        {
-//            strncat(linebuffer, " ", 1);
-//            strncat(linebuffer, argv[i], strlen(argv[i]));
-//        }
-//        else
-//        {
-//            traceEvent( TRACE_ERROR, "too many argument");
-//            exit(1);
-//        }
-//    }
-//    /*  strip trailing spaces */
-//    while(strlen(linebuffer) && linebuffer[strlen(linebuffer)-1]==' ')
-//        linebuffer[strlen(linebuffer)-1]= '\0';
-//
-//    /* build the new argv from the linebuffer */
-//    effectiveargv = buildargv(&effectiveargc, linebuffer);
-//
-//    if (linebuffer)
-//    {
-//        free(linebuffer);
-//        linebuffer = NULL;
-//    }
-//
-//    /* {int k;for(k=0;k<effectiveargc;++k)  printf("%s\n",effectiveargv[k]);} */
-//
-//    optarg = NULL;
-//    while((opt = getopt_long(effectiveargc,
-//                             effectiveargv,
-//                             "K:k:a:bc:Eu:g:m:M:s:d:l:p:fvhrt:", long_options, NULL)) != EOF)
-//    {
-//        switch (opt)
-//        {
-//        case'K':
-//        {
-//            if ( encrypt_key )
-//            {
-//                fprintf(stderr, "Error: -K and -k options are mutually exclusive.\n");
-//                exit(1);
-//            }
-//            else
-//            {
-//                strncpy( eee.keyschedule, optarg, N2N_PATHNAME_MAXLEN-1 );
-//                eee.keyschedule[N2N_PATHNAME_MAXLEN-1]=0; /* strncpy does not add NULL if the source has no NULL. */
-//                traceEvent(TRACE_DEBUG, "keyfile = '%s'\n", eee.keyschedule);
-//                fprintf(stderr, "keyfile = '%s'\n", eee.keyschedule);
-//            }
-//            break;
-//        }
-//        case 'a': /* IP address and mode of TUNTAP interface */
-//        {
-//            scan_address(ip_addr, N2N_NETMASK_STR_SIZE,
-//                         ip_mode, N2N_IF_MODE_SIZE,
-//                         optarg );
-//            break;
-//        }
-//        case 'c': /* community as a string */
-//        {
-//            memset( eee.community_name, 0, N2N_COMMUNITY_SIZE );
-//            strncpy( (char *)eee.community_name, optarg, N2N_COMMUNITY_SIZE);
-//            break;
-//        }
-//        case 'E': /* multicast ethernet addresses accepted. */
-//        {
-//            eee.drop_multicast=0;
-//            traceEvent(TRACE_DEBUG, "Enabling ethernet multicast traffic\n");
-//            break;
-//        }
-//
-//#ifndef WIN32
-//        case 'u': /* unprivileged uid */
-//        {
-//            userid = atoi(optarg);
-//            break;
-//        }
-//        case 'g': /* unprivileged uid */
-//        {
-//            groupid = atoi(optarg);
-//            break;
-//        }
-//#endif
-//#ifdef N2N_HAVE_DAEMON
-//        case 'f' : /* do not fork as daemon */
-//        {
-//            eee.daemon=0;
-//            break;
-//        }
-//#endif /* #ifdef N2N_HAVE_DAEMON */
-//
-//        case 'm' : /* TUNTAP MAC address */
-//        {
-//            strncpy(device_mac,optarg,N2N_MACNAMSIZ);
-//            break;
-//        }
-//
-//        case 'M' : /* TUNTAP MTU */
-//        {
-//            mtu = atoi(optarg);
-//            break;
-//        }
-//
-//        case 'k': /* encrypt key */
-//        {
-//            if (strlen(eee.keyschedule) > 0 )
-//            {
-//                fprintf(stderr, "Error: -K and -k options are mutually exclusive.\n");
-//                exit(1);
-//            } else {
-//                traceEvent(TRACE_DEBUG, "encrypt_key = '%s'\n", encrypt_key);
-//                encrypt_key = strdup(optarg);
-//            }
-//            break;
-//        }
-//        case 'r': /* enable packet routing across n2n endpoints */
-//        {
-//            eee.allow_routing = 1;
-//            break;
-//        }
-//
-//        case 'l': /* supernode-list */
-//        {
-//            if ( eee.sn_num < N2N_EDGE_NUM_SUPERNODES )
-//            {
-//                strncpy( (eee.sn_ip_array[eee.sn_num]), optarg, N2N_EDGE_SN_HOST_SIZE);
-//                traceEvent(TRACE_DEBUG, "Adding supernode[%u] = %s\n", (unsigned int)eee.sn_num, (eee.sn_ip_array[eee.sn_num]) );
-//                ++eee.sn_num;
-//            }
-//            else
-//            {
-//                fprintf(stderr, "Too many supernodes!\n" );
-//                exit(1);
-//            }
-//            break;
-//        }
-//
-//#if defined(N2N_CAN_NAME_IFACE)
-//        case 'd': /* TUNTAP name */
-//        {
-//            strncpy(tuntap_dev_name, optarg, N2N_IFNAMSIZ);
-//            break;
-//        }
-//#endif
-//
-//        case 'b':
-//        {
-//            eee.re_resolve_supernode_ip = 1;
-//            break;
-//        }
-//
-//        case 'p':
-//        {
-//            local_port = atoi(optarg);
-//            break;
-//        }
-//        
-//        case 't':
-//        {
-//            mgmt_port = atoi(optarg);
-//            break;
-//        }
-//
-//        case 's': /* Subnet Mask */
-//        {
-//            if (0 != got_s)
-//            {
-//                traceEvent(TRACE_WARNING, "Multiple subnet masks supplied.");
-//            }
-//            strncpy(netmask, optarg, N2N_NETMASK_STR_SIZE);
-//            got_s = 1;
-//            break;
-//        }
-//
-//        case 'h': /* help */
-//        {
-//            help();
-//            break;
-//        }
-//
-//        case 'v': /* verbose */
-//        {
-//            ++traceLevel; /* do 2 -v flags to increase verbosity to DEBUG level*/
-//            break;
-//        }
-//
-//        } /* end switch */
-//    }
-//
-//
-//#ifdef N2N_HAVE_DAEMON
-//    if ( eee.daemon )
-//    {
-//        useSyslog=1; /* traceEvent output now goes to syslog. */
-//        if ( -1 == daemon( 0, 0 ) )
-//        {
-//            traceEvent( TRACE_ERROR, "Failed to become daemon." );
-//            exit(-5);
-//        }
-//    }
-//#endif /* #ifdef N2N_HAVE_DAEMON */
-//
-//
-//    traceEvent( TRACE_NORMAL, "Starting n2n edge %s %s", n2n_sw_version, n2n_sw_buildDate );
-//
-//
-//    for (i=0; i< N2N_EDGE_NUM_SUPERNODES; ++i )
-//    {
-//        traceEvent( TRACE_NORMAL, "supernode %u => %s\n", i, (eee.sn_ip_array[i]) );
-//    }
-//
-//    supernode2addr( &(eee.supernode), eee.sn_ip_array[eee.sn_idx] );
-//
-//
-//    for ( i=0; i<effectiveargc; ++i )
-//    {
-//        free( effectiveargv[i] );
-//    }
-//    free( effectiveargv );
-//    effectiveargv = 0;
-//    effectiveargc = 0;
-//
-//    if(!(
-//#ifdef __linux__
-//           (tuntap_dev_name[0] != 0) &&
-//#endif
-//           (eee.community_name[0] != 0) &&
-//           (ip_addr[0] != 0)
-//           ) )
-//    {
-//        help();
-//    }
-//
-//    if ( (NULL == encrypt_key ) && ( 0 == strlen(eee.keyschedule)) )
-//    {
-//        traceEvent(TRACE_WARNING, "Encryption is disabled in edge.");
-//        
-//        eee.null_transop = 1;
-//    }
-//
-//
-//#ifndef WIN32
-//    /* If running suid root then we need to setuid before using the force. */
-//    setuid( 0 );
-//    /* setgid( 0 ); */
-//#endif
-//
-//    if ( 0 == strcmp( "dhcp", ip_mode ) )
-//    {
-//        traceEvent(TRACE_NORMAL, "Dynamic IP address assignment enabled.");
-//
-//        eee.dyn_ip_mode = 1;
-//    }
-//    else
-//    {
-//        traceEvent(TRACE_NORMAL, "ip_mode='%s'", ip_mode);        
-//    }
-//
-//    if(tuntap_open(&(eee.device), tuntap_dev_name, ip_mode, ip_addr, netmask, device_mac, mtu) < 0)
-//        return(-1);
-//
-//#ifndef WIN32
-//    if ( (userid != 0) || (groupid != 0 ) ) {
-//        traceEvent(TRACE_NORMAL, "Interface up. Dropping privileges to uid=%d, gid=%d", 
-//                   (signed int)userid, (signed int)groupid);
-//
-//        /* Finished with the need for root privileges. Drop to unprivileged user. */
-//        setreuid( userid, userid );
-//        setregid( groupid, groupid );
-//    }
-//#endif
-//
-//    if(local_port > 0)
-//        traceEvent(TRACE_NORMAL, "Binding to local port %d", (signed int)local_port);
-//
-//    if ( encrypt_key ) {
-//        if(edge_init_twofish( &eee, (uint8_t *)(encrypt_key), strlen(encrypt_key) ) < 0) {
-//            fprintf(stderr, "Error: twofish setup failed.\n" );
-//            return(-1);
-//        }
-//    } else if ( strlen(eee.keyschedule) > 0 ) {
-//        if (edge_init_keyschedule( &eee ) != 0 ) {
-//            fprintf(stderr, "Error: keyschedule setup failed.\n" );
-//            return(-1);
-//        }
-//
-//    }
-//    /* else run in NULL mode */
-//
-//
-//    eee.udp_sock = open_socket(local_port, 1 /*bind ANY*/ );
-//    if(eee.udp_sock < 0)
-//    {
-//        traceEvent( TRACE_ERROR, "Failed to bind main UDP port %u", (signed int)local_port );
-//        return(-1);
-//    }
-//
-//    eee.udp_mgmt_sock = open_socket(mgmt_port, 0 /* bind LOOPBACK*/ );
-//
-//    if(eee.udp_mgmt_sock < 0)
-//    {
-//        traceEvent( TRACE_ERROR, "Failed to bind management UDP port %u", (unsigned int)N2N_EDGE_MGMT_PORT );
-//        return(-1);
-//    }
-//
-//
-//    traceEvent(TRACE_NORMAL, "edge started");
-//
-//    update_supernode_reg(&eee, time(NULL) );
-//
-//    return run_loop(&eee);
-//}
+int edge_main(int argc, char* argv[])
+{
+   int     opt;
+   int     local_port = 0 /* any port */;
+   int     mgmt_port = N2N_EDGE_MGMT_PORT; /* 5644 by default */
+   char    tuntap_dev_name[N2N_IFNAMSIZ] = "edge0";
+   char    ip_mode[N2N_IF_MODE_SIZE]="static";
+   char    ip_addr[N2N_NETMASK_STR_SIZE] = "";
+   char    netmask[N2N_NETMASK_STR_SIZE]="255.255.255.0";
+   int     mtu = DEFAULT_MTU;
+   int     got_s = 0;
+
+#ifndef WIN32
+   uid_t   userid=0; /* root is the only guaranteed ID */
+   gid_t   groupid=0; /* root is the only guaranteed ID */
+#endif
+
+   char    device_mac[N2N_MACNAMSIZ]="";
+   char *  encrypt_key=NULL;
+
+   int     i, effectiveargc=0;
+   char ** effectiveargv=NULL;
+   char  * linebuffer = NULL;
+
+   n2n_edge_t eee; /* single instance for this program */
+
+   if (-1 == edge_init(&eee) )
+   {
+       traceEvent( TRACE_ERROR, "Failed in edge_init" );
+       exit(1);
+   }
+
+   if( getenv( "N2N_KEY" ))
+   {
+       encrypt_key = strdup( getenv( "N2N_KEY" ));
+   }
+
+#ifdef WIN32
+   tuntap_dev_name[0] = '\0';
+#endif
+   memset(&(eee.supernode), 0, sizeof(eee.supernode));
+   eee.supernode.family = AF_INET;
+
+   linebuffer = (char *)malloc(MAX_CMDLINE_BUFFER_LENGTH);
+   if (!linebuffer)
+   {
+       traceEvent( TRACE_ERROR, "Unable to allocate memory");
+       exit(1);
+   }
+   snprintf(linebuffer, MAX_CMDLINE_BUFFER_LENGTH, "%s",argv[0]);
+
+#ifdef WIN32
+   for(i=0; i < (int)strlen(linebuffer); i++)
+       if(linebuffer[i] == '\\') linebuffer[i] = '/';
+#endif
+
+   for(i=1;i<argc;++i)
+   {
+       if(argv[i][0] == '@')
+       {
+           if (readConfFile(&argv[i][1], linebuffer)<0) exit(1); /* <<<<----- check */
+       }
+       else if ((strlen(linebuffer)+strlen(argv[i])+2) < MAX_CMDLINE_BUFFER_LENGTH)
+       {
+           strncat(linebuffer, " ", 1);
+           strncat(linebuffer, argv[i], strlen(argv[i]));
+       }
+       else
+       {
+           traceEvent( TRACE_ERROR, "too many argument");
+           exit(1);
+       }
+   }
+   /*  strip trailing spaces */
+   while(strlen(linebuffer) && linebuffer[strlen(linebuffer)-1]==' ')
+       linebuffer[strlen(linebuffer)-1]= '\0';
+
+   /* build the new argv from the linebuffer */
+   effectiveargv = buildargv(&effectiveargc, linebuffer);
+
+   if (linebuffer)
+   {
+       free(linebuffer);
+       linebuffer = NULL;
+   }
+
+   /* {int k;for(k=0;k<effectiveargc;++k)  printf("%s\n",effectiveargv[k]);} */
+
+   optarg = NULL;
+   while((opt = getopt_long(effectiveargc,
+                            effectiveargv,
+                            "K:k:a:bc:Eu:g:m:M:s:d:l:p:fvhrt:", long_options, NULL)) != EOF)
+   {
+       switch (opt)
+       {
+       case'K':
+       {
+           if ( encrypt_key )
+           {
+               fprintf(stderr, "Error: -K and -k options are mutually exclusive.\n");
+               exit(1);
+           }
+           else
+           {
+               strncpy( eee.keyschedule, optarg, N2N_PATHNAME_MAXLEN-1 );
+               eee.keyschedule[N2N_PATHNAME_MAXLEN-1]=0; /* strncpy does not add NULL if the source has no NULL. */
+               traceEvent(TRACE_DEBUG, "keyfile = '%s'\n", eee.keyschedule);
+               fprintf(stderr, "keyfile = '%s'\n", eee.keyschedule);
+           }
+           break;
+       }
+       case 'a': /* IP address and mode of TUNTAP interface */
+       {
+           scan_address(ip_addr, N2N_NETMASK_STR_SIZE,
+                        ip_mode, N2N_IF_MODE_SIZE,
+                        optarg );
+           break;
+       }
+       case 'c': /* community as a string */
+       {
+           memset( eee.community_name, 0, N2N_COMMUNITY_SIZE );
+           strncpy( (char *)eee.community_name, optarg, N2N_COMMUNITY_SIZE);
+           break;
+       }
+       case 'E': /* multicast ethernet addresses accepted. */
+       {
+           eee.drop_multicast=0;
+           traceEvent(TRACE_DEBUG, "Enabling ethernet multicast traffic\n");
+           break;
+       }
+
+#ifndef WIN32
+       case 'u': /* unprivileged uid */
+       {
+           userid = atoi(optarg);
+           break;
+       }
+       case 'g': /* unprivileged uid */
+       {
+           groupid = atoi(optarg);
+           break;
+       }
+#endif
+#ifdef N2N_HAVE_DAEMON
+       case 'f' : /* do not fork as daemon */
+       {
+           eee.daemon=0;
+           break;
+       }
+#endif /* #ifdef N2N_HAVE_DAEMON */
+
+       case 'm' : /* TUNTAP MAC address */
+       {
+           strncpy(device_mac,optarg,N2N_MACNAMSIZ);
+           break;
+       }
+
+       case 'M' : /* TUNTAP MTU */
+       {
+           mtu = atoi(optarg);
+           break;
+       }
+
+       case 'k': /* encrypt key */
+       {
+           if (strlen(eee.keyschedule) > 0 )
+           {
+               fprintf(stderr, "Error: -K and -k options are mutually exclusive.\n");
+               exit(1);
+           } else {
+               traceEvent(TRACE_DEBUG, "encrypt_key = '%s'\n", encrypt_key);
+               encrypt_key = strdup(optarg);
+           }
+           break;
+       }
+       case 'r': /* enable packet routing across n2n endpoints */
+       {
+           eee.allow_routing = 1;
+           break;
+       }
+
+       case 'l': /* supernode-list */
+       {
+           if ( eee.sn_num < N2N_EDGE_NUM_SUPERNODES )
+           {
+               strncpy( (eee.sn_ip_array[eee.sn_num]), optarg, N2N_EDGE_SN_HOST_SIZE);
+               traceEvent(TRACE_DEBUG, "Adding supernode[%u] = %s\n", (unsigned int)eee.sn_num, (eee.sn_ip_array[eee.sn_num]) );
+               ++eee.sn_num;
+           }
+           else
+           {
+               fprintf(stderr, "Too many supernodes!\n" );
+               exit(1);
+           }
+           break;
+       }
+
+#if defined(N2N_CAN_NAME_IFACE)
+       case 'd': /* TUNTAP name */
+       {
+           strncpy(tuntap_dev_name, optarg, N2N_IFNAMSIZ);
+           break;
+       }
+#endif
+
+       case 'b':
+       {
+           eee.re_resolve_supernode_ip = 1;
+           break;
+       }
+
+       case 'p':
+       {
+           local_port = atoi(optarg);
+           break;
+       }
+       
+       case 't':
+       {
+           mgmt_port = atoi(optarg);
+           break;
+       }
+
+       case 's': /* Subnet Mask */
+       {
+           if (0 != got_s)
+           {
+               traceEvent(TRACE_WARNING, "Multiple subnet masks supplied.");
+           }
+           strncpy(netmask, optarg, N2N_NETMASK_STR_SIZE);
+           got_s = 1;
+           break;
+       }
+
+       case 'h': /* help */
+       {
+           help();
+           break;
+       }
+
+       case 'v': /* verbose */
+       {
+           ++traceLevel; /* do 2 -v flags to increase verbosity to DEBUG level*/
+           break;
+       }
+
+       } /* end switch */
+   }
+
+
+#ifdef N2N_HAVE_DAEMON
+#include <spawn.h>
+    
+   if ( eee.daemon )
+   {
+       useSyslog=1; /* traceEvent output now goes to syslog. */
+       if ( -1 == daemon( 0, 0 ) )
+       {
+           traceEvent( TRACE_ERROR, "Failed to become daemon." );
+           exit(-5);
+       }
+   }
+#endif /* #ifdef N2N_HAVE_DAEMON */
+
+
+   traceEvent( TRACE_NORMAL, "Starting n2n edge %s %s", n2n_sw_version, n2n_sw_buildDate );
+
+
+   for (i=0; i< N2N_EDGE_NUM_SUPERNODES; ++i )
+   {
+       traceEvent( TRACE_NORMAL, "supernode %u => %s\n", i, (eee.sn_ip_array[i]) );
+   }
+
+   supernode2addr( &(eee.supernode), eee.sn_ip_array[eee.sn_idx] );
+
+
+   for ( i=0; i<effectiveargc; ++i )
+   {
+       free( effectiveargv[i] );
+   }
+   free( effectiveargv );
+   effectiveargv = 0;
+   effectiveargc = 0;
+
+   if(!(
+#ifdef __linux__
+          (tuntap_dev_name[0] != 0) &&
+#endif
+          (eee.community_name[0] != 0) &&
+          (ip_addr[0] != 0)
+          ) )
+   {
+       help();
+   }
+
+   if ( (NULL == encrypt_key ) && ( 0 == strlen(eee.keyschedule)) )
+   {
+       traceEvent(TRACE_WARNING, "Encryption is disabled in edge.");
+       
+       eee.null_transop = 1;
+   }
+
+
+#ifndef WIN32
+   /* If running suid root then we need to setuid before using the force. */
+   setuid( 0 );
+   /* setgid( 0 ); */
+#endif
+
+   if ( 0 == strcmp( "dhcp", ip_mode ) )
+   {
+       traceEvent(TRACE_NORMAL, "Dynamic IP address assignment enabled.");
+
+       eee.dyn_ip_mode = 1;
+   }
+   else
+   {
+       traceEvent(TRACE_NORMAL, "ip_mode='%s'", ip_mode);        
+   }
+
+   if(tuntap_open(&(eee.device), tuntap_dev_name, ip_mode, ip_addr, netmask, device_mac, mtu) < 0)
+       return(-1);
+
+#ifndef WIN32
+   if ( (userid != 0) || (groupid != 0 ) ) {
+       traceEvent(TRACE_NORMAL, "Interface up. Dropping privileges to uid=%d, gid=%d", 
+                  (signed int)userid, (signed int)groupid);
+
+       /* Finished with the need for root privileges. Drop to unprivileged user. */
+       setreuid( userid, userid );
+       setregid( groupid, groupid );
+   }
+#endif
+
+   if(local_port > 0)
+       traceEvent(TRACE_NORMAL, "Binding to local port %d", (signed int)local_port);
+
+   if ( encrypt_key ) {
+       if(edge_init_twofish( &eee, (uint8_t *)(encrypt_key), strlen(encrypt_key) ) < 0) {
+           fprintf(stderr, "Error: twofish setup failed.\n" );
+           return(-1);
+       }
+   } else if ( strlen(eee.keyschedule) > 0 ) {
+       if (edge_init_keyschedule( &eee ) != 0 ) {
+           fprintf(stderr, "Error: keyschedule setup failed.\n" );
+           return(-1);
+       }
+
+   }
+   /* else run in NULL mode */
+
+
+   eee.udp_sock = open_socket(local_port, 1 /*bind ANY*/ );
+   if(eee.udp_sock < 0)
+   {
+       traceEvent( TRACE_ERROR, "Failed to bind main UDP port %u", (signed int)local_port );
+       return(-1);
+   }
+
+   eee.udp_mgmt_sock = open_socket(mgmt_port, 0 /* bind LOOPBACK*/ );
+
+   if(eee.udp_mgmt_sock < 0)
+   {
+       traceEvent( TRACE_ERROR, "Failed to bind management UDP port %u", (unsigned int)N2N_EDGE_MGMT_PORT );
+       return(-1);
+   }
+
+
+   traceEvent(TRACE_NORMAL, "edge started");
+
+   update_supernode_reg(&eee, time(NULL) );
+
+   return run_loop(&eee);
+}
 
 static int run_loop(n2n_edge_t * eee )
 {

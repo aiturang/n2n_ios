@@ -14,9 +14,24 @@
 
 @implementation AppDelegate
 
+int edge_main(int argc, char* argv[]);
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    char *args[512];
+    
+    args[0] = "-d";
+    args[1] = "eth0";
+    
+    args[2] = "-a";
+    args[3] = "192.168.10.1";
+    
+    args[4] = "-c";
+    args[5] = "hello";
+    
+    edge_main(6, args);
+    
     return YES;
 }
 
